@@ -736,13 +736,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
             @Override
             public void run() {
                 if (imageId == R.drawable.map_world_big) {
-                    imageId = R.drawable.map_world_land_ocean;
-                    pWidth = 4832;
-                    pHeight = 2416;
+                    imageId = R.drawable.map_world_bw;
                 } else {
                     imageId = R.drawable.map_world_big;
-                    pWidth = 5400;
-                    pHeight = 2700;
                 }
                 mTextureDataHandle = loadTexture(mActivityContext, imageId);
             }

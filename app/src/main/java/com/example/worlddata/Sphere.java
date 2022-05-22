@@ -9,28 +9,21 @@ public class Sphere {
 
     /** How many bytes per float. */
     private final int mBytesPerFloat = 4;
-
-//    public final FloatBuffer objectVertex;
-//    public final FloatBuffer objectColor;
-//    public final FloatBuffer objectTexture;
-
     private final float[] white = {1.0f, 1.0f, 1.0f, 1.0f};
 
-    //    public float[] Points;
-//    private float[] Colors;
-    public float[] Textures;
-    public final FloatBuffer objectVertex; // listPoints;
-    public final FloatBuffer objectColor; // listColors;
-    public final FloatBuffer objectTexture; // listTextures;
+    public final FloatBuffer objectVertex;
+    public final FloatBuffer objectColor;
+    public final FloatBuffer objectTexture;
 
     private final double mRaduis;
     private final int mStep;
     public int mTriangles;
 
     /**
-     * The value of step will define the size of each facet as well as the number of facets
-     * @param radius
-     * @param step */
+     * Creates the Sphere.
+     * @param radius Radius defines the distance of surface from origin.
+     * @param step Value of step defines the size of each facet as well as the number of facets.
+     * */
     public Sphere( float radius, int step) {
         this.mRaduis = radius;
         this.mStep = step;
@@ -38,31 +31,23 @@ public class Sphere {
         mTriangles = 4 * mStep * (mStep - 1);
         int mPoints = 3 * mTriangles;
 
-//        listPoints = FloatBuffer.allocate(mPoints * 3); // 3 floats per point
-//        listColors = FloatBuffer.allocate(mPoints * 4); // 4 floats per point
-//        listTextures = FloatBuffer.allocate(mPoints * 2); // 2 floats per point
-
-        objectVertex = ByteBuffer.allocateDirect(mPoints * 3 * mBytesPerFloat) // mPoints instead
+        objectVertex = ByteBuffer.allocateDirect(mPoints * 3 * mBytesPerFloat)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-//        objectVertex.put(Points).position(0);
-
-        objectColor = ByteBuffer.allocateDirect(mPoints * 4 * mBytesPerFloat) // mColors instead
+        objectColor = ByteBuffer.allocateDirect(mPoints * 4 * mBytesPerFloat)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-//        objectColor.put(Colors).position(0);
-
-        objectTexture = ByteBuffer.allocateDirect(mPoints * 2 * mBytesPerFloat) // mColors instead
+        objectTexture = ByteBuffer.allocateDirect(mPoints * 2 * mBytesPerFloat)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-//        objectColor.put(Textures).position(0);
-
         build();
     }
 
     private void build() {
         /**
+         * Builds the spherical model.
+         * z and y switched because z axis is horizontal and y is vertical (rotation axis for sphere)
          * x = p * sin(phi) * cos(theta)
          * z = p * cos(phi)
          * y = p * sin(phi) * sin(theta)
-         *  z and y switched because z axis is horizontal and y is vertical (rotation axis for sphere) */
+         */
         double dTheta = (double) Math.PI / mStep;
 
         // Generate triangle coordinates for the sphere
@@ -71,7 +56,6 @@ public class Sphere {
             double phiU = i * dTheta;
             double phiL = (i+1) * dTheta;
             // for each meridian
-//            for (double theta = 0.0; theta <= (Math.PI * 2); theta+=dTheta) {
             for (int j=0; j < mStep * 2; j++) {
                 double thetaL = j * dTheta;
                 double thetaR = ((j+1) * dTheta) % (2 * mStep * dTheta);
@@ -116,29 +100,51 @@ public class Sphere {
         objectVertex.position(0);
         objectColor.position(0);
         objectTexture.position(0);
-//        Points = objectVertex.array();
-//        Colors = objectColor.array();
-//        Textures = objectTexture.array();
     }
 
+    /**
+     * Calculates X coordinate from polar coordinate angles phi and theta.
+     * @param phi
+     * @param theta
+     * @return Value of X as Float.
+     */
     private float calcX(double phi, double theta) {
         return(float) (mRaduis * Math.sin(phi) * Math.cos(theta));
     }
 
+    /**
+     * Calculates Y coordinate from polar coordinate angles phi and theta.
+     * @param phi
+     * @param theta
+     * @return Value of Y as Float.
+     */
     private float calcY(double phi, double theta) {
         return (float) (mRaduis * Math.sin(phi) * Math.sin(theta));
     }
 
+    /**
+     * Calculates Z coordinate using only phi angle from polar coordinates.
+     * @param phi
+     * @return Value of Z as Float.
+     */
     private float calcZ(double phi) {
         return (float) (mRaduis * Math.cos(phi));
     }
 
+    /**
+     * Paints triangle in a random color. Used for debugging.
+     */
     private void paintTriangle() {
         Random r = new Random();
         float[] color = {r.nextFloat(), r.nextFloat(), r.nextFloat(), 1.0f};
         objectColor.put(color); objectColor.put(color); objectColor.put(color);
     }
 
+
+    /**
+     * Paints triangle in the specified color.
+     * @param color
+     */
     private void paintTriangle(float[] color) {
         objectColor.put(color); objectColor.put(color); objectColor.put(color);
     }
