@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
         final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
 
-        enableAllFilesAccess();
-
         loadBtn.setOnClickListener(new View.OnClickListener() {
             /**
              * Open file explorer to load a file. If permission not granted, asks for it.
@@ -73,13 +71,13 @@ public class MainActivity extends AppCompatActivity {
              */
             @Override
             public void onClick(View v) {
-                if (checkPermission()) {
+                enableAllFilesAccess();
+                if ((SDK_INT >= 30 && Environment.isExternalStorageManager()) || checkPermission()) {
                     // Permission granted
                     Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
                     chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
                     chooseFile.setType("*/*");
                     startActivityForResult(Intent.createChooser(chooseFile, "Choose a file"), PICKFILE_REQUEST_CODE);
-
                 } else {
                     // Permission denied
                     requestPermission();
