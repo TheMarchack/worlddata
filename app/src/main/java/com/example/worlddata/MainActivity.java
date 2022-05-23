@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     builder.append(line);
                 }
                 // Interpret opened file data
-                interpretGeoJson(builder.toString());
+                interpretGeoJson(new Gson().fromJson(builder.toString(), JsonObject.class));
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -157,12 +157,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Checks the GeoJSON data to see if point data contains categories. Visualizes them accordingly.
-     * @param geoJsonString String of GeoJSON data features.
+     * @param gson JsonObject of GeoJSON data features.
      */
-    private void interpretGeoJson(String geoJsonString) {
+    private void interpretGeoJson(JsonObject gson) {
         try {
-            // Load data from GeoJSON file
-            JsonObject gson = new Gson().fromJson(geoJsonString, JsonObject.class);
             // Get necessary data from GeoJSON
             JsonArray geometry = gson.getAsJsonArray("features");
             debugText.setText(String.valueOf(gson.get("title").getAsString()));
