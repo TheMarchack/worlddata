@@ -571,22 +571,19 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
      * @param features List of feature (point) data from loaded GeoJSON file.
      */
     public void drawCategories(JsonArray features) {
-        // Prepare array for overlay
+        // Prepare arrays for overlay and calculating view position
         int[][] overlayArrayBlue = new int[pWidth][pHeight];
         int[][] overlayArrayGreen = new int[pWidth][pHeight];
         int[][] overlayArrayRed = new int[pWidth][pHeight];
-
-        // Prepare array for calculating view position
         List<Float> xCoords = new ArrayList<>();
         List<Float> yCoords = new ArrayList<>();
-
-        // Loop to draw the points with point counters
-        int counterRed = 0;
-        int counterBlue = 0;
-        int counterGreen = 0;
-        int category;
+        
+        // Prepare variables for loop
+        int counterRed = 0, counterBlue = 0, counterGreen = 0, category, x, y;
         JsonObject point;
         String type;
+
+        // Loop to draw the points with point counters
         for (int i = 0; i < features.size(); i++) {
             // Get specific point data from GeoJSON object
             point = features.get(i).getAsJsonObject();
@@ -607,8 +604,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
                     .getAsJsonArray("coordinates");
             xCoords.add(coords.get(0).getAsFloat());
             yCoords.add(coords.get(1).getAsFloat());
-            int x = Math.round((coords.get(0).getAsFloat() + 180) / 360 * pWidth);
-            int y = Math.round(-(coords.get(1).getAsFloat() - 90) / 180 * pHeight);
+            x = Math.round((coords.get(0).getAsFloat() + 180) / 360 * pWidth);
+            y = Math.round(-(coords.get(1).getAsFloat() - 90) / 180 * pHeight);
 
             switch (category) {
                 case 1:
@@ -630,16 +627,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
                     Log.e("Drawing", "Unrecognized category for point " + i + ": " + category);
             }
         }
-
         // Find max pixel value
-        int maxValBlue = getMaxVal(overlayArrayBlue);
-        int maxValRed = getMaxVal(overlayArrayRed);
-
+        int maxVal = Math.max(getMaxVal(overlayArrayBlue), Math.max(getMaxVal(overlayArrayRed), getMaxVal(overlayArrayGreen)));
         // Get overlay range
-        float[] minMax = goToData(xCoords, yCoords);
+        float[] pointsMinMax = goToData(xCoords, yCoords);
 
         // Merge color arrays to get overlay and reload texture
-        mergeLayers(minMax, overlayArrayRed, overlayArrayGreen, overlayArrayBlue, Math.max(maxValBlue, maxValRed));
+        mergeLayers(pointsMinMax, overlayArrayRed, overlayArrayGreen, overlayArrayBlue, maxVal);
         refreshBitmaps();
 
         Log.i("Drawing", "RGB points drawn: " + counterRed + ", " + counterGreen + ", " + counterBlue);
