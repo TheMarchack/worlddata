@@ -724,6 +724,10 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
      * @return returns a list of float variables showing bordering coordinates of point data - minX, maxX, minY and maxY - used in function mergeLayers.
      */
     private float[] goToData(List<Float> xList, List<Float> yList) {
+        if (xList.size() == 0) {
+            Log.e("Drawing", "No points drawn, view position not changed.");
+            return new float[]{0, 1, 0, 1};
+        }
         float minX = 180;
         float minY = 90;
         float maxX = -180;
