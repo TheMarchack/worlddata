@@ -585,10 +585,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
         int counterBlue = 0;
         int counterGreen = 0;
         int category;
+        JsonObject point;
+        String type;
         for (int i = 0; i < features.size(); i++) {
             // Get specific point data from GeoJSON object
-            JsonObject point = features.get(i).getAsJsonObject();
-            if (point.get("geometry").getAsJsonObject().get("type").getAsString() != "Point") {
+            point = features.get(i).getAsJsonObject();
+            type = point.get("geometry").getAsJsonObject().get("type").getAsString();
+            if (!type.equals("Point")) {
                 Log.e("Drawing", "Geometry type for object " + i + " is not Point");
                 continue;
             }
