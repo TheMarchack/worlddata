@@ -583,11 +583,23 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
         // Loop to draw the points with point counters
         int counterRed = 0;
         int counterBlue = 0;
+        int counterGreen = 0;
+        int category;
         for (int i = 0; i < features.size(); i++) {
             // Get specific point data from GeoJSON object
             JsonObject point = features.get(i).getAsJsonObject();
-            int category = point.get("properties").getAsJsonObject()
-                    .get("category").getAsInt();
+            if (point.get("geometry").getAsJsonObject().get("type").getAsString() != "Point") {
+                Log.e("Drawing", "Geometry type for object " + i + " is not Point");
+                continue;
+            }
+            try {
+                category = point.get("properties").getAsJsonObject()
+                        .get("category").getAsInt();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("Drawing", "Could not interpret category for object " + i);
+                continue;
+            }
             JsonArray coords = point.get("geometry").getAsJsonObject()
                     .getAsJsonArray("coordinates");
             xCoords.add(coords.get(0).getAsFloat());
@@ -595,14 +607,24 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
             int x = Math.round((coords.get(0).getAsFloat() + 180) / 360 * pWidth);
             int y = Math.round(-(coords.get(1).getAsFloat() - 90) / 180 * pHeight);
 
-            if (category == 1) {
-                counterBlue++;
-                drawSquarePoint(overlayArrayBlue, x, y, 1);
-                //overlayArrayBlue[x][y]++;
-            } else if (category == 2) {
-                counterRed++;
-                drawSquarePoint(overlayArrayRed, x, y, 1);
-                //overlayArrayRed[x][y]++;
+            switch (category) {
+                case 1:
+                    counterBlue++;
+                    drawSquarePoint(overlayArrayBlue, x, y, 1);
+                    //overlayArrayBlue[x][y]++;
+                    break;
+                case 2:
+                    counterRed++;
+                    drawSquarePoint(overlayArrayRed, x, y, 1);
+                    //overlayArrayRed[x][y]++;
+                    break;
+                case 3:
+                    counterGreen++;
+                    drawSquarePoint(overlayArrayGreen, x, y, 1);
+                    //overlayArrayGreen[x][y]++;
+                    break;
+                default:
+                    Log.e("Drawing", "Unrecognized category for point " + i + ": " + category);
             }
         }
 
@@ -617,15 +639,15 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
         mergeLayers(minMax, overlayArrayRed, overlayArrayGreen, overlayArrayBlue, Math.max(maxValBlue, maxValRed));
         refreshBitmaps();
 
-        Log.i("Drawing", counterBlue + " blue points and " + counterRed + " red points drawn.");
+        Log.i("Drawing", "RGB points drawn: " + counterRed + ", " + counterGreen + ", " + counterBlue);
     }
 
     /**
      * Merges different color layers of binary category data from drawCategories function to get dataOverlay Bitmap.
      * @param minMax List of float variables showing bordering coordinates of point data - minX, maxX, minY and maxY.
-     * @param red 2D array of point occurences in every pixel of red color.
-     * @param green 2D array of point occurences in every pixel of green color.
-     * @param blue 2D array of point occurences in every pixel of blue color.
+     * @param red 2D array of point occurrences in every pixel of red color.
+     * @param green 2D array of point occurrences in every pixel of green color.
+     * @param blue 2D array of point occurrences in every pixel of blue color.
      * @param maxVal Maximum value of all three color channels. The most points drawn in one pixel.
      */
     public void mergeLayers(float[] minMax, int[][] red, int[][] green, int[][] blue, int maxVal) {
