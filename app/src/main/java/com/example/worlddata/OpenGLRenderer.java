@@ -577,7 +577,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
         int[][] overlayArrayRed = new int[pWidth][pHeight];
         List<Float> xCoords = new ArrayList<>();
         List<Float> yCoords = new ArrayList<>();
-        
+
         // Prepare variables for loop
         int counterRed = 0, counterBlue = 0, counterGreen = 0, category, x, y;
         JsonObject point;

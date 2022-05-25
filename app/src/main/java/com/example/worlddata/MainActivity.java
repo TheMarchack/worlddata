@@ -15,6 +15,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -140,7 +141,14 @@ public class MainActivity extends AppCompatActivity {
                     builder.append(line);
                 }
                 // Interpret opened file data
-                interpretGeoJson(new Gson().fromJson(builder.toString(), JsonObject.class));
+                JsonObject geoJson = null;
+                try {
+                    geoJson = new Gson().fromJson(builder.toString(), JsonObject.class);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this, "Please select file with GeoJSON structure", Toast.LENGTH_SHORT).show();
+                }
+                interpretGeoJson(geoJson);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
